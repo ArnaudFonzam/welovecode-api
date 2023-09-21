@@ -39,7 +39,9 @@ public class FormationService {
         return formationRepository.save(existingFormation);
     }
 
-    public void deleteFormation(Long id) {
+    public boolean deleteFormation(Long id) {
         formationRepository.deleteById(id);
+        return true;
+       
     }
 }

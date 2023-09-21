@@ -2,6 +2,7 @@ package com.wlovec.welovecodeapi.controller;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,27 +26,27 @@ public class FormationController {
     }
 
     @GetMapping
-    public List<Formation> getAllFormations() {
-        return formationService.getAllFormations();
+    public ResponseEntity<List<Formation>> getAllFormations() {
+        return ResponseEntity.ok(formationService.getAllFormations());
     }
 
     @GetMapping("/{id}")
-    public Formation getFormationById(@PathVariable Long id) {
-        return formationService.getFormationById(id);
+    public ResponseEntity<Formation> getFormationById(@PathVariable Long id) {
+        return ResponseEntity.ok(formationService.getFormationById(id));
     }
 
     @PostMapping
-    public Formation createFormation(@RequestBody Formation formation) {
-        return formationService.createFormation(formation);
+    public ResponseEntity<Formation> createFormation(@RequestBody Formation formation) {
+        return ResponseEntity.ok(formationService.createFormation(formation));
     }
 
     @PutMapping("/{id}")
-    public Formation updateFormation(@PathVariable Long id, @RequestBody Formation formation) {
-        return formationService.updateFormation(id, formation);
+    public ResponseEntity<Formation> updateFormation(@PathVariable Long id, @RequestBody Formation formation) {
+        return ResponseEntity.ok(formationService.updateFormation(id, formation));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteFormation(@PathVariable Long id) {
-        formationService.deleteFormation(id);
+    public ResponseEntity<Boolean> deleteFormation(@PathVariable Long id) {
+    	return ResponseEntity.ok(formationService.deleteFormation(id));
     }
 }

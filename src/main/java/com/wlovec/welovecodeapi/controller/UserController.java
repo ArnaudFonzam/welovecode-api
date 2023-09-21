@@ -2,6 +2,7 @@ package com.wlovec.welovecodeapi.controller;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,23 +27,23 @@ public class UserController {
 	}
 
 	@GetMapping
-	public List<User> getAllUsers() {
-		return userService.getAllUsers();
+	public ResponseEntity<List<User>> getAllUsers() {
+		return ResponseEntity.ok(userService.getAllUsers());
 	}
 
 	@GetMapping("/{id}")
-	public User getUserById(@PathVariable Long id) {
-		return userService.getUserById(id);
+	public ResponseEntity<User> getUserById(@PathVariable Long id) {
+		return ResponseEntity.ok(userService.getUserById(id));
 	}
 
 	@PostMapping
-	public User createUser(@RequestBody User user) {
-		return userService.createUser(user);
+	public ResponseEntity<User> createUser(@RequestBody User user) {
+		return ResponseEntity.ok(userService.createUser(user));
 	}
 
 	@PutMapping("/{id}")
-	public User updateUser(@PathVariable Long id, @RequestBody User user) {
-		return userService.updateUser(id, user);
+	public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+		return ResponseEntity.ok(userService.updateUser(id, user));
 	}
 
 	@DeleteMapping("/{id}")

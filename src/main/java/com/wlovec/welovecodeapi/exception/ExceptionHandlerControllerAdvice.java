@@ -42,7 +42,6 @@ public class ExceptionHandlerControllerAdvice {
 
 	    @ExceptionHandler(Exception.class)
 	    public ResponseEntity<ExceptionMessage> genericExceptionHandler(HttpServletRequest request, Exception exception) {
-	    	System.out.println("error");
 	        ExceptionMessage message = ExceptionMessage.builder()
 	            .date(LocalDateTime.now().format(formatter))
 	            .path(request.getRequestURI().toString() + "?" + request.getQueryString())
