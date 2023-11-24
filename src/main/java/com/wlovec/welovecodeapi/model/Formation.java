@@ -30,13 +30,21 @@ public class Formation {
 
     private Double price;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+   /* @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private User owner;
+    private User owner;*/
 
-    public String getName() {
+    public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getName() {
 		return name;
 	}
 
@@ -76,13 +84,13 @@ public class Formation {
 		this.price = price;
 	}
 
-	public User getOwner() {
+	/*public User getOwner() {
 		return owner;
 	}
 
 	public void setOwner(User owner) {
 		this.owner = owner;
-	}
+	}*/
 
 	public Formation() {
     }
@@ -94,7 +102,7 @@ public class Formation {
 		this.language = language;
 		this.level = level;
 		this.price = price;
-		this.owner = owner;
+		//this.owner = owner;
 	}
     
 }

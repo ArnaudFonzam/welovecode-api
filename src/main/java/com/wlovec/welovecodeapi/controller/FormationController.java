@@ -16,7 +16,7 @@ import com.wlovec.welovecodeapi.model.Formation;
 import com.wlovec.welovecodeapi.service.FormationService;
 
 @RestController
-@RequestMapping("/formations")
+@RequestMapping("/api/v1")
 public class FormationController {
 
     private final FormationService formationService;
@@ -25,27 +25,27 @@ public class FormationController {
         this.formationService = formationService;
     }
 
-    @GetMapping
+    @GetMapping("/formations")
     public ResponseEntity<List<Formation>> getAllFormations() {
         return ResponseEntity.ok(formationService.getAllFormations());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/formations/{id}")
     public ResponseEntity<Formation> getFormationById(@PathVariable Long id) {
         return ResponseEntity.ok(formationService.getFormationById(id));
     }
 
-    @PostMapping
+    @PostMapping("/formations")
     public ResponseEntity<Formation> createFormation(@RequestBody Formation formation) {
         return ResponseEntity.ok(formationService.createFormation(formation));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/formations/{id}")
     public ResponseEntity<Formation> updateFormation(@PathVariable Long id, @RequestBody Formation formation) {
         return ResponseEntity.ok(formationService.updateFormation(id, formation));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/formations/{id}")
     public ResponseEntity<Boolean> deleteFormation(@PathVariable Long id) {
     	return ResponseEntity.ok(formationService.deleteFormation(id));
     }

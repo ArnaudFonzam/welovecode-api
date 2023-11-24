@@ -35,7 +35,7 @@ public class FormationService {
         existingFormation.setLanguage(formation.getLanguage());
         existingFormation.setLevel(formation.getLevel());
         existingFormation.setPrice(formation.getPrice());
-        existingFormation.setOwner(formation.getOwner());
+        //existingFormation.setOwner(formation.getOwner());
         return formationRepository.save(existingFormation);
     }
 
