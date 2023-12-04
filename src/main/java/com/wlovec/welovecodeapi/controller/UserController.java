@@ -2,6 +2,8 @@ package com.wlovec.welovecodeapi.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wlovec.welovecodeapi.model.User;
 import com.wlovec.welovecodeapi.service.UserService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
-@RequestMapping("/users")
+@RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
 
 	private UserService userService;
@@ -28,26 +33,32 @@ public class UserController {
 
 	@GetMapping
 	public ResponseEntity<List<User>> getAllUsers() {
+		log.info("Recupération de tous les utilisateurs");
 		return ResponseEntity.ok(userService.getAllUsers());
 	}
 
-	@GetMapping("/{id}")
+	@GetMapping("/users/{id}")
 	public ResponseEntity<User> getUserById(@PathVariable Long id) {
+		log.info("Recupération de l'utilisateur");
 		return ResponseEntity.ok(userService.getUserById(id));
 	}
 
-	@PostMapping
-	public ResponseEntity<User> createUser(@RequestBody User user) {
-		return ResponseEntity.ok(userService.createUser(user));
+	@PostMapping("/users")
+	public ResponseEntity<Boolean> createUser(@RequestBody User user) {
+		log.info("Inscription");
+		userService.createUser(user);
+		return ResponseEntity.ok(true);
 	}
 
-	@PutMapping("/{id}")
+	@PutMapping("/users/{id}")
 	public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+		log.info("Modification de l'utilisateur");
 		return ResponseEntity.ok(userService.updateUser(id, user));
 	}
 
-	@DeleteMapping("/{id}")
+	@DeleteMapping("/users/{id}")
 	public void deleteUser(@PathVariable Long id) {
+		log.info("Suppression de l'utilisateur");
 		userService.deleteUser(id);
 	}
 }

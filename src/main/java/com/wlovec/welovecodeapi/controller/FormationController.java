@@ -16,7 +16,7 @@ import com.wlovec.welovecodeapi.model.Formation;
 import com.wlovec.welovecodeapi.service.FormationService;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/v1")
 public class FormationController {
 
     private final FormationService formationService;

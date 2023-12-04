@@ -1,21 +1,28 @@
 package com.wlovec.welovecodeapi.service;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.wlovec.welovecodeapi.enumeration.TypeDeRole;
+import com.wlovec.welovecodeapi.model.Role;
 import com.wlovec.welovecodeapi.model.User;
 import com.wlovec.welovecodeapi.repository.UserRepository;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
 	private final UserRepository userRepository;
-
-	public UserService(UserRepository userRepository) {
-		this.userRepository = userRepository;
-	}
-
+	private BCryptPasswordEncoder passwordEncoder;
+	private final ValidationService validationService;
 	public List<User> getAllUsers() {
 		return userRepository.findAll();
 	}
@@ -24,8 +31,29 @@ public class UserService {
 		return userRepository.findById(id).orElseThrow();
 	}
 
-	public User createUser(User user) {
-		return userRepository.save(user);
+	public void createUser(User user) {
+		if (!user.getEmail().contains("@")) {
+			throw new RuntimeException("Votre Email est invalide");
+		}
+		if (!user.getEmail().contains(".")) {
+			throw new RuntimeException("Votre Email est invalide");
+		}
+		Optional<User> userOptional = this.userRepository.findByEmail(user.getEmail()); 
+		
+		if (userOptional.isPresent()) {
+			throw new RuntimeException("Cette Email est déjà utilisé");
+		}
+		
+		if (this.userRepository.findByName(user.getName()) != null) {
+			throw new RuntimeException("Ce Nom est déjà utilisé");
+		}
+		String pwd = this.passwordEncoder.encode(user.getPassword());
+		user.setPassword(pwd);
+		Role roleUser = new Role();
+		roleUser.setLibelle(TypeDeRole.USER);
+		user.setRole(roleUser);
+		User userSave = userRepository.save(user);
+		this.validationService.saveValidation(userSave);
 	}
 
 	public User updateUser(Long id, User user) {
@@ -39,4 +67,13 @@ public class UserService {
 	public void deleteUser(Long id) {
 		userRepository.deleteById(id);
 	}
+
+	@Override
+    public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
+        User user = userRepository.findByName(name);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        return user;
+    }
 }
