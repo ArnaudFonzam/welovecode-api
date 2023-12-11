@@ -1,6 +1,8 @@
 package com.wlovec.welovecodeapi.service;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.wlovec.welovecodeapi.enumeration.TypeDeRole;
 import com.wlovec.welovecodeapi.model.Role;
 import com.wlovec.welovecodeapi.model.User;
+import com.wlovec.welovecodeapi.model.Validation;
 import com.wlovec.welovecodeapi.repository.UserRepository;
 
 import lombok.AllArgsConstructor;
@@ -20,15 +23,16 @@ import lombok.AllArgsConstructor;
 @Service
 public class UserService implements UserDetailsService {
 
-	private final UserRepository userRepository;
+	private UserRepository userRepository;
 	private BCryptPasswordEncoder passwordEncoder;
-	private final ValidationService validationService;
+	private ValidationService validationService;
+	
 	public List<User> getAllUsers() {
 		return userRepository.findAll();
 	}
 
-	public User getUserById(Long id) {
-		return userRepository.findById(id).orElseThrow();
+	public Optional<User> getUserById(Long id) {
+		return userRepository.findById(id);
 	}
 
 	public void createUser(User user) {
@@ -38,12 +42,10 @@ public class UserService implements UserDetailsService {
 		if (!user.getEmail().contains(".")) {
 			throw new RuntimeException("Votre Email est invalide");
 		}
-		Optional<User> userOptional = this.userRepository.findByEmail(user.getEmail()); 
-		
-		if (userOptional.isPresent()) {
+		Optional<User> userOp = this.userRepository.findByEmail(user.getEmail()); 
+		if (userOp.isPresent()) {
 			throw new RuntimeException("Cette Email est déjà utilisé");
 		}
-		
 		if (this.userRepository.findByName(user.getName()) != null) {
 			throw new RuntimeException("Ce Nom est déjà utilisé");
 		}
@@ -54,6 +56,7 @@ public class UserService implements UserDetailsService {
 		user.setRole(roleUser);
 		User userSave = userRepository.save(user);
 		this.validationService.saveValidation(userSave);
+		System.out.println("inscription reussi");
 	}
 
 	public User updateUser(Long id, User user) {
@@ -69,11 +72,29 @@ public class UserService implements UserDetailsService {
 	}
 
 	@Override
-    public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
-        User user = userRepository.findByName(name);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found");
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		Optional<User> user = userRepository.findByEmail(email);
+        if (!user.isPresent()) {
+            throw new UsernameNotFoundException("User not found.");
         }
-        return user;
+        return user.get();
     }
+	
+	public void activation(Map<String, String> activation) {
+		Validation validation = this.validationService.getValidationByCode(activation.get("code"));
+		
+		if (Instant.now().isAfter(validation.getExpiration())) {
+			throw new RuntimeException("Votre code à expirer.");
+		}
+		
+		Optional<User> user = this.userRepository.findByEmail(validation.getUser().getEmail());
+		if (!user.isPresent()) {
+			throw new RuntimeException("Unknow user.");
+		}
+		User u = user.get();
+		u.setActif(true);
+		this.userRepository.save(u);
+		this.validationService.updateValidation(validation);
+		
+	}
 }
