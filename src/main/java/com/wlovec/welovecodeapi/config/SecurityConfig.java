@@ -11,14 +11,25 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 	
+	private JwtFilter jwtFilter;
+	private BCryptPasswordEncoder bcryptPasswordEncoder;
+	
+	
+	public SecurityConfig(JwtFilter jwtFilter, BCryptPasswordEncoder bcryptPasswordEncoder) {
+		this.jwtFilter = jwtFilter;
+		this.bcryptPasswordEncoder = bcryptPasswordEncoder;
+	}
+
 	// Configuring HttpSecurity
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -27,16 +38,14 @@ public class SecurityConfig {
                 				authorize -> authorize.requestMatchers(HttpMethod.POST, "/users").permitAll()
                 										.requestMatchers(HttpMethod.POST, "/users/connexion").permitAll()
                 										.requestMatchers(HttpMethod.POST, "/users/activation").permitAll()
-                										.anyRequest().authenticated()
-                ).build();
+                										.anyRequest().permitAll()
+                )
+                .sessionManagement(httpSecuritySessionManagementConfigure ->
+                	httpSecuritySessionManagementConfigure.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
  
-    // Password Encoding
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-    
     // authentification 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -47,7 +56,7 @@ public class SecurityConfig {
     public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
     	DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
     	daoAuthenticationProvider.setUserDetailsService(userDetailsService);
-    	daoAuthenticationProvider.setPasswordEncoder(this.passwordEncoder());
+    	daoAuthenticationProvider.setPasswordEncoder(bcryptPasswordEncoder);
     	return daoAuthenticationProvider;
     }
 }

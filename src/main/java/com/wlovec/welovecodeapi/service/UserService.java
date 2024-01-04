@@ -27,6 +27,15 @@ public class UserService implements UserDetailsService {
 	private BCryptPasswordEncoder passwordEncoder;
 	private ValidationService validationService;
 	
+	private void validation(User user) {
+		Optional<User> userOp = this.userRepository.findByEmail(user.getEmail()); 
+		if (userOp.isPresent()) {
+			throw new RuntimeException("Cette Email est déjà utilisé");
+		}
+		if (this.userRepository.findByName(user.getName()) != null) {
+			throw new RuntimeException("Ce Nom est déjà utilisé");
+		}
+	}
 	public List<User> getAllUsers() {
 		return userRepository.findAll();
 	}
@@ -36,27 +45,16 @@ public class UserService implements UserDetailsService {
 	}
 
 	public void createUser(User user) {
-		if (!user.getEmail().contains("@")) {
-			throw new RuntimeException("Votre Email est invalide");
-		}
-		if (!user.getEmail().contains(".")) {
-			throw new RuntimeException("Votre Email est invalide");
-		}
-		Optional<User> userOp = this.userRepository.findByEmail(user.getEmail()); 
-		if (userOp.isPresent()) {
-			throw new RuntimeException("Cette Email est déjà utilisé");
-		}
-		if (this.userRepository.findByName(user.getName()) != null) {
-			throw new RuntimeException("Ce Nom est déjà utilisé");
-		}
+		validation(user);
 		String pwd = this.passwordEncoder.encode(user.getPassword());
 		user.setPassword(pwd);
 		Role roleUser = new Role();
 		roleUser.setLibelle(TypeDeRole.USER);
 		user.setRole(roleUser);
 		User userSave = userRepository.save(user);
-		this.validationService.saveValidation(userSave);
 		System.out.println("inscription reussi");
+		this.validationService.saveValidation(userSave); /// il ya un problème avec l'envois de mail pour la validation du compte
+		System.out.println("validation envoyer");
 	}
 
 	public User updateUser(Long id, User user) {

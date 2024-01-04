@@ -40,6 +40,8 @@ public class User implements UserDetails {
 	
 	private boolean actif = false;
 	
+	private boolean acceptTerms;
+	
 	@OneToOne(cascade = CascadeType.ALL)
 	private Role role;
 
